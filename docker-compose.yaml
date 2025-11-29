@@ -1,0 +1,24 @@
+services:
+  foundry:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOWNLOAD_URL: ${DOWNLOAD_URL}
+    container_name: foundryvtt
+    restart: unless-stopped
+    ports:
+      - "${PORT:-30000}:30000"
+    volumes:
+      - ./data:/home/foundry/data:rw
+    environment:
+      - FOUNDRY_HOSTNAME=${FOUNDRY_HOSTNAME:-localhost}
+      - FOUNDRY_ADMIN_KEY=${FOUNDRY_ADMIN_KEY}
+      - FOUNDRY_MINIFY_STATIC_FILES=${FOUNDRY_MINIFY_STATIC_FILES:-true}
+      - TIMEZONE=${TIMEZONE:-Europe/Moscow}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:30000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
